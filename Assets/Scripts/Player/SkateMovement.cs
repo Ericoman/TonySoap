@@ -26,8 +26,8 @@ public class SkateMovement : MonoBehaviour
     private Rigidbody rb;
     public bool isGrounded = false;
     private bool paused = false;
-    private bool exploding = false;
-
+    public bool exploding = false;
+    public bool isGrinding = false;
     private SplineAnimate _splineAnimate;
     
     private void Awake()
@@ -43,9 +43,21 @@ public class SkateMovement : MonoBehaviour
         skateJumpAction = skateActionMap.FindAction("Jump");
         skateMoveAction = skateActionMap.FindAction("Move");
     }
+    
+    public IEnumerator ExplodeOnFall()
+    {
+        exploding = true;
+        rb.AddForce(explosionForce*frontPoint.up, ForceMode.Impulse);
+        yield return new WaitUntil(() => isGrounded);
+        exploding = false;
+        
+    }
+
+
 
     public void PauseForGrind(bool pause)
     {
+        isGrinding = pause;
         rb.isKinematic = pause;
         paused = pause;
     }

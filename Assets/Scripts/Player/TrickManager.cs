@@ -18,10 +18,9 @@ public class TrickManager : MonoBehaviour
     [SerializeField] private float comboIncrement = 0.2f;
     
     private int scorePoints;
+    public SphereCollider sphereCollider;
     
     private SkateMovement skateMovement;
-
-    public bool isGrinding = false;
 
     private void Awake()
     {
@@ -39,6 +38,7 @@ public class TrickManager : MonoBehaviour
         scorePoints = 0;
         Foentes.Instance.AddScore(0);
         comboTimer = comboTimerMax;
+        sphereCollider.enabled = false;
     }
 
     // Update is called once per frame
@@ -54,6 +54,15 @@ public class TrickManager : MonoBehaviour
         {
             comboCount = 0;
         }
+
+        if (isTricking && skateMovement.isGrinding == false)
+        {
+            sphereCollider.enabled = true;
+        }
+        else
+        {
+            sphereCollider.enabled = false;
+        }
         
         
         Vector2 trickVector = skateTrickAction.ReadValue<Vector2>();
@@ -61,7 +70,7 @@ public class TrickManager : MonoBehaviour
         Debug.Log(trickVector.x * Time.deltaTime);
         
         // ====================== UP TRICKS ======================
-        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
         {
                 animator.SetTrigger("TrickAirUp");
                 isTricking = true;
@@ -72,7 +81,7 @@ public class TrickManager : MonoBehaviour
                 trickCooldown = 0.0f;
         }
         
-        if (trickVector.y > 0 && !isTricking && isGrinding)
+        if (trickVector.y > 0 && !isTricking && skateMovement.isGrinding)
         {
                 animator.SetTrigger("TrickGrindingUp");
                 isTricking = true;
@@ -84,7 +93,7 @@ public class TrickManager : MonoBehaviour
         }
         
         // ====================== DOWN TRICKS ======================
-        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
         {
             animator.SetTrigger("TrickAirDown");
             isTricking = true;
@@ -95,7 +104,7 @@ public class TrickManager : MonoBehaviour
             trickCooldown = 0.0f;
         }
         
-        if (trickVector.y < 0 && !isTricking && isGrinding)
+        if (trickVector.y < 0 && !isTricking && skateMovement.isGrinding)
         {
             animator.SetTrigger("TrickGrindingDown");
             isTricking = true;
@@ -107,7 +116,7 @@ public class TrickManager : MonoBehaviour
         }
         
         // ====================== RIGHT TRICKS ======================
-        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
         {
             animator.SetTrigger("TrickAirRight");
             isTricking = true;
@@ -118,7 +127,7 @@ public class TrickManager : MonoBehaviour
             trickCooldown = 0.0f;
         }
         
-        if (trickVector.x > 0 && !isTricking && isGrinding)
+        if (trickVector.x > 0 && !isTricking && skateMovement.isGrinding)
         {
             animator.SetTrigger("TrickGrindingRight");
             isTricking = true;
@@ -130,7 +139,7 @@ public class TrickManager : MonoBehaviour
         }
         
         // ====================== LEFT TRICKS ======================
-        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
         {
             animator.SetTrigger("TrickAirLeft");
             isTricking = true;
@@ -140,7 +149,7 @@ public class TrickManager : MonoBehaviour
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
-        if (trickVector.x < 0 && !isTricking && isGrinding)
+        if (trickVector.x < 0 && !isTricking && skateMovement.isGrinding)
         {
             animator.SetTrigger("TrickGrindingLeft");
             isTricking = true;
