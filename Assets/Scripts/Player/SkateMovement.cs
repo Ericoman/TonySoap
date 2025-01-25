@@ -3,6 +3,8 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Splines;
+
 public class SkateMovement : MonoBehaviour
 {
     
@@ -25,11 +27,14 @@ public class SkateMovement : MonoBehaviour
     private bool isGrounded = false;
     private bool paused = false;
     private bool exploding = false;
+
+    private SplineAnimate _splineAnimate;
     
     private void Awake()
     {
         
         rb = GetComponent<Rigidbody>();
+        _splineAnimate = GetComponent<SplineAnimate>();
     }
 
     void Start()
@@ -38,7 +43,21 @@ public class SkateMovement : MonoBehaviour
         skateJumpAction = skateActionMap.FindAction("Jump");
         skateMoveAction = skateActionMap.FindAction("Move");
     }
-    
+
+    public void Pause(bool pause)
+    {
+        // rb.isKinematic = pause;
+        // rb.detectCollisions = !pause;
+        //rb.useGravity = !pause;
+        paused = pause;
+    }
+
+    public void ExitGrind()
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.AddForce(explosionForce*-frontPoint.up, ForceMode.Impulse);
+    }
     void FixedUpdate()
     {
         if (paused) return;
