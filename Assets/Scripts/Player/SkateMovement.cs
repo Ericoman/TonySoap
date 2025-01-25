@@ -3,6 +3,8 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Splines;
+
 public class SkateMovement : MonoBehaviour
 {
     
@@ -24,12 +26,15 @@ public class SkateMovement : MonoBehaviour
     private Rigidbody rb;
     public bool isGrounded = false;
     private bool paused = false;
-    public bool exploding = false;
+    private bool exploding = false;
+
+    private SplineAnimate _splineAnimate;
     
     private void Awake()
     {
         
         rb = GetComponent<Rigidbody>();
+        _splineAnimate = GetComponent<SplineAnimate>();
     }
 
     void Start()
@@ -38,7 +43,30 @@ public class SkateMovement : MonoBehaviour
         skateJumpAction = skateActionMap.FindAction("Jump");
         skateMoveAction = skateActionMap.FindAction("Move");
     }
-    
+
+    public void PauseForGrind(bool pause)
+    {
+        rb.isKinematic = pause;
+        paused = pause;
+    }
+
+    public void ExitGrind(Vector3 exitPoint, Vector3 exitLookAtPoint)
+    {
+        paused = true;
+        if (!rb.isKinematic)
+        {
+            rb.isKinematic = true;
+        }
+        transform.position = exitPoint;
+        Vector3 direction = new Vector3(exitLookAtPoint.x,0,exitLookAtPoint.z) - transform.position;
+        Quaternion targetRotation = Quaternion.LookRotation(direction, transform.up);
+        transform.rotation =new Quaternion(targetRotation.x,targetRotation.y,0,targetRotation.w);
+        rb.isKinematic = false;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        paused = false;
+        //rb.AddForce(explosionForce*-frontPoint.up, ForceMode.Impulse);
+    }
     void FixedUpdate()
     {
         if (paused) return;
@@ -84,16 +112,7 @@ public class SkateMovement : MonoBehaviour
             
         }
     }
-
-    public IEnumerator ExplodeOnFall()
-    {
-        exploding = true;
-        rb.AddForce(explosionForce*frontPoint.up, ForceMode.Impulse);
-        yield return new WaitUntil(() => isGrounded);
-        exploding = false;
-        
-    }
-    public IEnumerator WaitAndExplode_CO()
+    IEnumerator WaitAndExplode_CO()
     {
         exploding = true;
         yield return new WaitForSeconds(waitForExplosionSeconds);
