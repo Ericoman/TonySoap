@@ -24,7 +24,7 @@ public class SkateMovement : MonoBehaviour
     private Rigidbody rb;
     public bool isGrounded = false;
     private bool paused = false;
-    private bool exploding = false;
+    public bool exploding = false;
     
     private void Awake()
     {
@@ -84,7 +84,16 @@ public class SkateMovement : MonoBehaviour
             
         }
     }
-    IEnumerator WaitAndExplode_CO()
+
+    public IEnumerator ExplodeOnFall()
+    {
+        exploding = true;
+        rb.AddForce(explosionForce*frontPoint.up, ForceMode.Impulse);
+        yield return new WaitUntil(() => isGrounded);
+        exploding = false;
+        
+    }
+    public IEnumerator WaitAndExplode_CO()
     {
         exploding = true;
         yield return new WaitForSeconds(waitForExplosionSeconds);

@@ -5,10 +5,19 @@ using UnityEngine.InputSystem;
 public class TrickManager : MonoBehaviour
 {
     private Animator animator;
-    [SerializeField] private bool isTricking = false;
+    [SerializeField]private bool isTricking = false;
     [SerializeField]private float trickCooldown = 0.0f;
     private InputActionMap skateActionMap;
     private InputAction skateTrickAction;
+
+    [SerializeField]private float comboTimer;
+    [SerializeField] private float comboTimerMax = 2.0f;
+    [SerializeField]private int comboCount = 0;
+    private float comboMultiplier = 1f; // The current multiplier
+
+    [SerializeField] private float comboIncrement = 0.2f;
+    
+    private int scorePoints;
     
     private SkateMovement skateMovement;
 
@@ -27,22 +36,38 @@ public class TrickManager : MonoBehaviour
     void Start()
     {
         trickCooldown = 0.0f;
+        scorePoints = 0;
+        Foentes.Instance.AddScore(0);
+        comboTimer = comboTimerMax;
     }
 
     // Update is called once per frame
     void Update()
     {
         trickCooldown += Time.deltaTime;
+
+        if (comboTimer > 0)
+        {
+            comboTimer -= Time.deltaTime;
+        }
+        else
+        {
+            comboCount = 0;
+        }
+        
         
         Vector2 trickVector = skateTrickAction.ReadValue<Vector2>();
         
         Debug.Log(trickVector.x * Time.deltaTime);
         
         // ====================== UP TRICKS ======================
-        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
         {
                 animator.SetTrigger("TrickAirUp");
                 isTricking = true;
+                comboTimer = comboTimerMax;
+                comboCount++;
+                AddScorePoints(5, comboCount);
                 Debug.Log(isTricking);
                 trickCooldown = 0.0f;
         }
@@ -51,15 +76,21 @@ public class TrickManager : MonoBehaviour
         {
                 animator.SetTrigger("TrickGrindingUp");
                 isTricking = true;
+                comboTimer = comboTimerMax;
+                comboCount++;
+                AddScorePoints(7, comboCount);
                 Debug.Log(isTricking);
                 trickCooldown = 0.0f;
         }
         
         // ====================== DOWN TRICKS ======================
-        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
         {
             animator.SetTrigger("TrickAirDown");
             isTricking = true;
+            comboTimer = comboTimerMax;
+            comboCount++;
+            AddScorePoints(5, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -68,15 +99,21 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickGrindingDown");
             isTricking = true;
+            comboTimer = comboTimerMax;
+            comboCount++;
+            AddScorePoints(7, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
         // ====================== RIGHT TRICKS ======================
-        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
         {
             animator.SetTrigger("TrickAirRight");
             isTricking = true;
+            comboTimer = comboTimerMax;
+            comboCount++;
+            AddScorePoints(5, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -85,15 +122,21 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickGrindingRight");
             isTricking = true;
+            comboTimer = comboTimerMax;
+            comboCount++;
+            AddScorePoints(7, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
         // ====================== LEFT TRICKS ======================
-        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false && skateMovement.exploding == false)
         {
             animator.SetTrigger("TrickAirLeft");
             isTricking = true;
+            comboTimer = comboTimerMax;
+            comboCount++;
+            AddScorePoints(5, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -101,6 +144,9 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickGrindingLeft");
             isTricking = true;
+            comboTimer = comboTimerMax;
+            comboCount++;
+            AddScorePoints(7, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -129,5 +175,34 @@ public class TrickManager : MonoBehaviour
             //     //isTricking = false;
             // }
         }
+        
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(isTricking && other.CompareTag("Floor"))
+        {
+            animator.SetTrigger("ReturnDefault");
+            skateMovement.ExplodeOnFall();
+        }
+    }
+    private void AddScorePoints(int points, float multiplier)
+    {
+        int totalPoints = Mathf.RoundToInt(points * multiplier); // Apply combo multiplier
+        scorePoints += totalPoints;
+        Foentes.Instance.AddScore(scorePoints);
+    }
+
+    private void ProcessCombo(int points)
+    {
+        comboTimer = comboTimerMax;
+        comboCount++;
+
+        // Calculate multiplier: 1 + (combo count * increment factor)
+        comboMultiplier = 1 + (comboCount * comboIncrement);
+
+        // Add score with the calculated multiplier
+        AddScorePoints(points, comboMultiplier);
+    }
+    
 }
