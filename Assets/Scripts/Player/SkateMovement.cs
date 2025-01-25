@@ -19,6 +19,9 @@ public class SkateMovement : MonoBehaviour
     [SerializeField] private float explosionForce = 20f;
     [SerializeField] private float linearVelocityThreshold = 0.2f;
     [SerializeField] private float waitForExplosionSeconds = 0.001f;
+    [SerializeField] private float madeupGravity = 4.0f;
+    [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private float jumpDurationNoseconds = 1.0f;
     private InputActionMap skateActionMap;
     private InputAction skateJumpAction;
     private InputAction skateMoveAction;
@@ -42,8 +45,39 @@ public class SkateMovement : MonoBehaviour
         skateActionMap = InputSystem.actions.FindActionMap("SkateSoap");
         skateJumpAction = skateActionMap.FindAction("Jump");
         skateMoveAction = skateActionMap.FindAction("Move");
+        skateJumpAction.performed += SkateJumpActionOnperformed;
     }
-    
+
+    private void SkateJumpActionOnperformed(InputAction.CallbackContext obj)
+    {
+        Jump();
+    }
+
+    private void Jump()
+    {
+        if (isGrounded)
+        {
+            StartCoroutine(Jump_CO());
+        }
+    }
+
+    private IEnumerator Jump_CO()
+    {
+        paused = true;
+        isGrounded = false;
+        // rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.freezeRotation = true;
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        rb.AddForce(frontPoint.up * jumpForce, ForceMode.Impulse);
+        rb.MoveRotation(new Quaternion(0,transform.rotation.y,0,transform.rotation.w));
+        rb.useGravity = true;
+        yield return new WaitForSeconds(jumpDurationNoseconds);
+        rb.freezeRotation = false;
+        isGrounded = true;
+        paused = false;
+        
+    }
     public IEnumerator ExplodeOnFall()
     {
         exploding = true;
@@ -168,7 +202,7 @@ public class SkateMovement : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(frontPoint.position, -transform.up, out hit, 2f))
         {
-            rb.AddForce(-hit.normal * (4.0f * Time.deltaTime));
+            rb.AddForce(-hit.normal * (madeupGravity * Time.deltaTime));
             //Quaternion surfaceRotation = Quaternion.FromToRotation(transform.up, hit.normal);
             //transform.rotation = surfaceRotation * transform.rotation;
         }
