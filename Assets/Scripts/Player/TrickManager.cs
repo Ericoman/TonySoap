@@ -9,13 +9,17 @@ public class TrickManager : MonoBehaviour
     [SerializeField]private float trickCooldown = 0.0f;
     private InputActionMap skateActionMap;
     private InputAction skateTrickAction;
+    
+    private SkateMovement skateMovement;
 
+    public bool isGrinding = false;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         skateActionMap = InputSystem.actions.FindActionMap("SkateSoap");
         skateTrickAction = skateActionMap.FindAction("Tricks");
+        skateMovement = GetComponent<SkateMovement>();
     }
 
 
@@ -34,17 +38,68 @@ public class TrickManager : MonoBehaviour
         
         Debug.Log(trickVector.x * Time.deltaTime);
         
-        if (trickVector.x > 0 && !isTricking)
+        // ====================== UP TRICKS ======================
+        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
         {
-            animator.SetTrigger("TrickTest");
+                animator.SetTrigger("TrickAirUp");
+                isTricking = true;
+                Debug.Log(isTricking);
+                trickCooldown = 0.0f;
+        }
+        
+        if (trickVector.y > 0 && !isTricking && isGrinding)
+        {
+                animator.SetTrigger("TrickGrindingUp");
+                isTricking = true;
+                Debug.Log(isTricking);
+                trickCooldown = 0.0f;
+        }
+        
+        // ====================== DOWN TRICKS ======================
+        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        {
+            animator.SetTrigger("TrickAirDown");
             isTricking = true;
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
-        if (Input.GetKeyDown(KeyCode.Q) && !isTricking)
+        if (trickVector.y < 0 && !isTricking && isGrinding)
         {
-            animator.SetTrigger("TrickTest2");
+            animator.SetTrigger("TrickGrindingDown");
+            isTricking = true;
+            Debug.Log(isTricking);
+            trickCooldown = 0.0f;
+        }
+        
+        // ====================== RIGHT TRICKS ======================
+        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        {
+            animator.SetTrigger("TrickAirRight");
+            isTricking = true;
+            Debug.Log(isTricking);
+            trickCooldown = 0.0f;
+        }
+        
+        if (trickVector.x > 0 && !isTricking && isGrinding)
+        {
+            animator.SetTrigger("TrickGrindingRight");
+            isTricking = true;
+            Debug.Log(isTricking);
+            trickCooldown = 0.0f;
+        }
+        
+        // ====================== LEFT TRICKS ======================
+        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
+        {
+            animator.SetTrigger("TrickAirLeft");
+            isTricking = true;
+            Debug.Log(isTricking);
+            trickCooldown = 0.0f;
+        }
+        if (trickVector.x < 0 && !isTricking && isGrinding)
+        {
+            animator.SetTrigger("TrickGrindingLeft");
             isTricking = true;
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
@@ -53,7 +108,7 @@ public class TrickManager : MonoBehaviour
         // Check if the animation is playing and if it has ended
         if (isTricking)
         {
-            if (trickCooldown >= 1.0f)
+            if (trickCooldown >= 0.8f)
             {
                 Debug.Log("Está entrando en esta movida");
                 isTricking = false;

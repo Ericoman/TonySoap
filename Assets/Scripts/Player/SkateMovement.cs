@@ -22,7 +22,7 @@ public class SkateMovement : MonoBehaviour
     private InputAction skateMoveAction;
 
     private Rigidbody rb;
-    private bool isGrounded = false;
+    public bool isGrounded = false;
     private bool paused = false;
     private bool exploding = false;
     
