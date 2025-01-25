@@ -36,14 +36,12 @@ public class TrickManager : MonoBehaviour
         
         Vector2 trickVector = skateTrickAction.ReadValue<Vector2>();
         
-        Debug.Log(trickVector.x * Time.deltaTime);
         
         // ====================== UP TRICKS ======================
         if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && isGrinding == false)
         {
                 animator.SetTrigger("TrickAirUp");
                 isTricking = true;
-                Debug.Log(isTricking);
                 trickCooldown = 0.0f;
         }
         
@@ -51,7 +49,6 @@ public class TrickManager : MonoBehaviour
         {
                 animator.SetTrigger("TrickGrindingUp");
                 isTricking = true;
-                Debug.Log(isTricking);
                 trickCooldown = 0.0f;
         }
         
@@ -60,7 +57,6 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickAirDown");
             isTricking = true;
-            Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
@@ -68,7 +64,6 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickGrindingDown");
             isTricking = true;
-            Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
@@ -77,7 +72,6 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickAirRight");
             isTricking = true;
-            Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
@@ -85,7 +79,6 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickGrindingRight");
             isTricking = true;
-            Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         
@@ -94,14 +87,12 @@ public class TrickManager : MonoBehaviour
         {
             animator.SetTrigger("TrickAirLeft");
             isTricking = true;
-            Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
         if (trickVector.x < 0 && !isTricking && isGrinding)
         {
             animator.SetTrigger("TrickGrindingLeft");
             isTricking = true;
-            Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
 
@@ -110,7 +101,6 @@ public class TrickManager : MonoBehaviour
         {
             if (trickCooldown >= 0.8f)
             {
-                Debug.Log("Está entrando en esta movida");
                 isTricking = false;
             }
             

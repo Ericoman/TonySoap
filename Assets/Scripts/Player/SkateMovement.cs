@@ -44,19 +44,28 @@ public class SkateMovement : MonoBehaviour
         skateMoveAction = skateActionMap.FindAction("Move");
     }
 
-    public void Pause(bool pause)
+    public void PauseForGrind(bool pause)
     {
-        // rb.isKinematic = pause;
-        // rb.detectCollisions = !pause;
-        //rb.useGravity = !pause;
+        rb.isKinematic = pause;
         paused = pause;
     }
 
-    public void ExitGrind()
+    public void ExitGrind(Vector3 exitPoint, Vector3 exitLookAtPoint)
     {
+        paused = true;
+        if (!rb.isKinematic)
+        {
+            rb.isKinematic = true;
+        }
+        transform.position = exitPoint;
+        Vector3 direction = new Vector3(exitLookAtPoint.x,0,exitLookAtPoint.z) - transform.position;
+        Quaternion targetRotation = Quaternion.LookRotation(direction, transform.up);
+        transform.rotation =new Quaternion(targetRotation.x,targetRotation.y,0,targetRotation.w);
+        rb.isKinematic = false;
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-        rb.AddForce(explosionForce*-frontPoint.up, ForceMode.Impulse);
+        paused = false;
+        //rb.AddForce(explosionForce*-frontPoint.up, ForceMode.Impulse);
     }
     void FixedUpdate()
     {
