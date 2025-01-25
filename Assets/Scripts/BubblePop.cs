@@ -5,7 +5,9 @@ public class BubblePop : MonoBehaviour
     public float growSpeed = 2.0f; // Velocidad de crecimiento
     public float maxScale = 1.5f; // Escala máxima antes de explotar
     public GameObject particleEffect; // Prefab de partículas
-
+    [SerializeField]
+    public AudioSource audioData;
+    
     private bool isPopping = false;
 
     void Update()
@@ -18,6 +20,7 @@ public class BubblePop : MonoBehaviour
             // Cuando alcance el tamaño máximo, detona
             if (transform.localScale.x >= maxScale)
             {
+               
                 Explode();
             }
         }
@@ -30,10 +33,10 @@ public class BubblePop : MonoBehaviour
         // Instanciar partículas
         if (particleEffect != null)
         {
-            Instantiate(particleEffect, transform.position, Quaternion.identity);
+            //Instantiate(particleEffect, transform.position, Quaternion.identity);
         }
-
+        
         // Destruir la burbuja
-        Destroy(gameObject);
+        Destroy(gameObject,2.0f);
     }
 }

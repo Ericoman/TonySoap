@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using UnityEngine.UIElements;
+
 public class BubbleCollide : MonoBehaviour
 {
     // Evento que se lanza cuando se detecta una colisión
@@ -11,15 +13,16 @@ public class BubbleCollide : MonoBehaviour
 
     private bool isPopping = false;
 
-
+    public AudioSource audioData;
+    
+    
     // Asegúrate de que el GameObject tenga un SphereCollider configurado como Trigger
     private void OnTriggerEnter (Collider collision)
     {
-        Debug.Log($"Colisión detectada con: {collision.gameObject.name}");
         // Comprobamos si el objeto que entra en el trigger no es este mismo objeto
         if (collision.gameObject != gameObject)
         {
-            Debug.Log($"Colisión detectada con: {collision.gameObject.name}");
+         
             HandleCollision();
             // Llamamos al evento y enviamos el objeto con el que se colisionó
             OnCollisionEnterEvent?.Invoke(collision.gameObject);
@@ -44,11 +47,12 @@ public class BubbleCollide : MonoBehaviour
                 // Instanciar partículas
                 if (particleEffect != null)
                 {
-                    particleEffect.Play ();
-                    ParticleSystem.EmissionModule em = particleEffect.emission; em.enabled = true; 
+                    //particleEffect.Play ();
+                    //ParticleSystem.EmissionModule em = particleEffect.emission; em.enabled = true; 
+                  
                     
                 }
-
+                audioData.Play();
                 Explode();
             }
         }
@@ -58,7 +62,9 @@ public class BubbleCollide : MonoBehaviour
     {
         isPopping = false;  
         // Destruir la burbuja
-        Destroy(gameObject);
+        GetComponent<Renderer>().enabled = !GetComponent<Renderer>().enabled;
+        Destroy(gameObject,0.3f);
+        
     }
     
 }
