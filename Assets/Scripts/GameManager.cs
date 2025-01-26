@@ -1,4 +1,7 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
@@ -8,6 +11,23 @@ public class GameManager : MonoBehaviour
     public Image timeSlider;
     
     private bool isGameOver = false;
+    public int score = 0;
+
+    private static GameManager instance = null;
+    public static GameManager Instance => instance;
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -40,6 +60,7 @@ public class GameManager : MonoBehaviour
         if (gameTime <= 0.0f)
         {
             isGameOver = true;
+            MenuManager.Instance.EndGame();
         }
     }
 

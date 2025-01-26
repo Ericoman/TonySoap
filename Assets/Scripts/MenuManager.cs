@@ -20,11 +20,28 @@ public class MenuManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+    }
+
+    private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
+    {
+        if (arg0.buildIndex == 2)
+        {
+            Foentes.Instance.AddScore(GameManager.Instance.score);
+        }
+    }
+
     public void StartGame()
     {
         SceneManager.LoadScene(1);
     }
 
+    public void EndGame()
+    {
+        SceneManager.LoadScene(2);
+    }
     public void ReturnToMainMenu()
     {
         SceneManager.LoadScene(0);

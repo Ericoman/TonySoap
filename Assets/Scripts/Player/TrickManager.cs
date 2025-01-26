@@ -38,6 +38,7 @@ public class TrickManager : MonoBehaviour
     {
         trickCooldown = 0.0f;
         scorePoints = 0;
+        GameManager.Instance.score = 0;
         Foentes.Instance.AddScore(0);
         comboTimer = comboTimerMax;
         sphereCollider.enabled = false;
@@ -227,6 +228,7 @@ public class TrickManager : MonoBehaviour
     {
         int totalPoints = Mathf.RoundToInt(points * multiplier); // Apply combo multiplier
         scorePoints += totalPoints;
+        GameManager.Instance.score = scorePoints;
         Foentes.Instance.AddScore(scorePoints);
     }
 
