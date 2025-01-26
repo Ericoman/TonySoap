@@ -8,7 +8,8 @@ using UnityEngine.Splines;
 public class SkateMovement : MonoBehaviour
 {
     [SerializeField] private Transform startPoint;
-    [SerializeField] private float baseSpeed = 200.0f;
+    [SerializeField] private float baseSpeed = 10.0f;
+    [SerializeField] private float maxVelocity = 10.0f;
     
     [SerializeField] private float rotationSpeed = 100.0f;
     [SerializeField]
@@ -140,7 +141,7 @@ public class SkateMovement : MonoBehaviour
         if (isGrounded)
         {
             AlignToSurface();
-            rb.AddForce(transform.forward * (baseSpeed * Time.deltaTime));
+            rb.AddForce(transform.forward * (baseSpeed * Time.deltaTime), ForceMode.Impulse);
             Vector2 rotationVector = skateMoveAction.ReadValue<Vector2>();
             // Calculate the rotation angle
             float rotationAngle = rotationVector.x * rotationSpeed * Time.deltaTime;
@@ -149,6 +150,7 @@ public class SkateMovement : MonoBehaviour
             Quaternion deltaRotation = Quaternion.Euler(0f, rotationAngle, 0f);
 
             // Apply the rotation to the Rigidbody
+            rb.ResetInertiaTensor();
             rb.MoveRotation(rb.rotation * deltaRotation);
             RaycastHit hit;
             if (rb.linearVelocity.magnitude < linearVelocityThreshold && !exploding &&  (colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
@@ -156,6 +158,7 @@ public class SkateMovement : MonoBehaviour
                 StartCoroutine(WaitAndExplode_CO());
 
             }
+            LimitVelocity();
         }
         else
         {
@@ -163,6 +166,15 @@ public class SkateMovement : MonoBehaviour
         }
     }
     bool colliding = false;
+    
+    private void LimitVelocity()
+    {
+        if (rb.linearVelocity.magnitude > maxVelocity)
+        {
+            // Clamp the velocity to the maximum value
+            rb.linearVelocity = rb.linearVelocity.normalized * maxVelocity;
+        }
+    }
     
     private void CheckGround()
     {
@@ -187,7 +199,8 @@ public class SkateMovement : MonoBehaviour
         exploding = true;
         yield return new WaitForSeconds(waitForExplosionSeconds);
         RaycastHit hit;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && ( colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
+        RaycastHit hitRear;
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && ( colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f) || Physics.Raycast(rearPoint.position, -transform.up, out hitRear, 2f)))
         {
             paused = true;
             StartCoroutine(WaitAndExplode_CO());
@@ -203,7 +216,8 @@ public class SkateMovement : MonoBehaviour
         exploding = true;
         yield return new WaitForSeconds(waitForExplosionSeconds);
         RaycastHit hit;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && Physics.Raycast(frontPoint.position, transform.up, out hit, 2f))
+        RaycastHit hitRear;
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f) || Physics.Raycast(rearPoint.position, transform.up, out hitRear, 2f)))
         {
             paused = true;
             rb.AddForce(hit.normal * jumpForce, ForceMode.Impulse);
@@ -237,8 +251,9 @@ public class SkateMovement : MonoBehaviour
     void DetectDownside()
     {
         RaycastHit hit;
+        RaycastHit hitRear;
         if(exploding) return;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && Physics.Raycast(frontPoint.position, transform.up, out hit, 2f))
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f) || Physics.Raycast(rearPoint.position, transform.up, out hitRear, checkGroundDistance)))
         {
             isDownside = true;
             StartCoroutine(WaitAndExplodeDownside_CO());

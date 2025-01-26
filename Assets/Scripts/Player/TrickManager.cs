@@ -90,7 +90,7 @@ public class TrickManager : MonoBehaviour
         Debug.Log(trickVector.x * Time.deltaTime);
         
         // ====================== UP TRICKS ======================
-        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.y > 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false && !skateMovement.isDownside)
         {
                 animator.SetTrigger("TrickAirUp");
                 isTricking = true;
@@ -113,7 +113,7 @@ public class TrickManager : MonoBehaviour
         }
         
         // ====================== DOWN TRICKS ======================
-        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.y < 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false && !skateMovement.isDownside)
         {
             animator.SetTrigger("TrickAirDown");
             isTricking = true;
@@ -136,7 +136,7 @@ public class TrickManager : MonoBehaviour
         }
         
         // ====================== RIGHT TRICKS ======================
-        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.x > 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false && !skateMovement.isDownside)
         {
             animator.SetTrigger("TrickAirRight");
             isTricking = true;
@@ -159,7 +159,7 @@ public class TrickManager : MonoBehaviour
         }
         
         // ====================== LEFT TRICKS ======================
-        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false)
+        if (trickVector.x < 0 && !isTricking && !skateMovement.isGrounded && skateMovement.isGrinding == false && skateMovement.exploding == false && !skateMovement.isDownside)
         {
             animator.SetTrigger("TrickAirLeft");
             isTricking = true;
