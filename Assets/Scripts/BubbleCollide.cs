@@ -14,11 +14,26 @@ public class BubbleCollide : MonoBehaviour
     private bool isPopping = false;
 
     public AudioSource audioData;
+
+    public GameManager gameManager;
     
-    
+    private float lifeTime = 0.0f;
+    public float lifeTimeMax = 7.0f;
+
+    private void Awake()
+    {
+        lifeTimeMax = 7.0f;
+        lifeTime = lifeTimeMax;
+    }
+
     // Asegúrate de que el GameObject tenga un SphereCollider configurado como Trigger
     private void OnTriggerEnter (Collider collision)
     {
+        if (collision.CompareTag("Player"))
+        {
+            FindObjectOfType<GameManager>().AddTime();
+        }
+        
         // Comprobamos si el objeto que entra en el trigger no es este mismo objeto
         if (collision.gameObject != gameObject)
         {
@@ -36,6 +51,13 @@ public class BubbleCollide : MonoBehaviour
     
     void Update()
     {
+        lifeTime -= Time.deltaTime;
+
+        if (lifeTime <= 0)
+        {
+            Explode();
+        }
+        
         if (isPopping)
         {
             // Haz crecer la burbuja
