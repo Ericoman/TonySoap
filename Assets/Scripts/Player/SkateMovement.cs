@@ -86,7 +86,7 @@ public class SkateMovement : MonoBehaviour
         rb.freezeRotation = true;
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         rb.AddForce(frontPoint.up * jumpForce, ForceMode.Impulse);
-        rb.MoveRotation(new Quaternion(0,transform.rotation.y,0,transform.rotation.w));
+        rb.MoveRotation(new Quaternion(0,transform.rotation.y,0,transform.rotation.w).normalized);
         rb.useGravity = true;
         yield return new WaitForSeconds(jumpDurationNoseconds);
         rb.freezeRotation = false;
