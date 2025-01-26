@@ -186,7 +186,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 32b764f9aca25f843a7d186bf940ab3a, type: 3}
   specialWomboComboSound: {fileID: 8300000, guid: 1c24eefa8ce6eeb4da8a265fdcaad0bb, type: 3}
   trailSound: {fileID: 8300000, guid: bb4d4a2bfae0b5f40abb82f10e0facb2, type: 3}
-  pumSound: {fileID: 0}
+  pumSound: {fileID: 8300000, guid: 2c39c8693df25db4db79b947bb5909e2, type: 3}
   playerAudioSource: {fileID: 0}
   comboAudioSource: {fileID: 6160629003235500401}
 --- !u!82 &6160629003235500401

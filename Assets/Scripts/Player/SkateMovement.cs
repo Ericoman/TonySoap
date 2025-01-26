@@ -203,7 +203,7 @@ public class SkateMovement : MonoBehaviour
         yield return new WaitForSeconds(waitForExplosionSeconds);
         RaycastHit hit;
         RaycastHit hitRear;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && ( colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f) || Physics.Raycast(rearPoint.position, -transform.up, out hitRear, 2f)))
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && ( colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
         {
             paused = true;
             StartCoroutine(WaitAndExplode_CO());
@@ -221,7 +221,7 @@ public class SkateMovement : MonoBehaviour
         yield return new WaitForSeconds(waitForExplosionSeconds);
         RaycastHit hit;
         RaycastHit hitRear;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f) || Physics.Raycast(rearPoint.position, transform.up, out hitRear, 2f)))
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f)))
         {
             paused = true;
             AudioCuacker.Instance.PlayPumSound();
@@ -258,7 +258,7 @@ public class SkateMovement : MonoBehaviour
         RaycastHit hit;
         RaycastHit hitRear;
         if(exploding) return;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f) || Physics.Raycast(rearPoint.position, transform.up, out hitRear, checkGroundDistance)))
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f) || Physics.Raycast(rearPoint.position, transform.up, out hitRear, 2f)))
         {
             isDownside = true;
             StartCoroutine(WaitAndExplodeDownside_CO());
