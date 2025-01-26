@@ -38,18 +38,7 @@ public class ScreenPopUps : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            if (currentState < 3)
-            {
-                currentState++;
-            }
-            else
-            {
-                currentState = 0;
-            }
-            UpdateImages();
-        }
+        
 
         if (currentState == 0)
         {
