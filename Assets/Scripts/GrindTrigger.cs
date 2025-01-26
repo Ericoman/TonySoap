@@ -13,7 +13,11 @@ public class GrindTrigger : MonoBehaviour
     [SerializeField]
     float lerpSpeed = 5f;
     [SerializeField]
+    float grindSpeed = 5f;
+    [SerializeField]
     SplineContainer relatedSpline;
+    [SerializeField]
+    Transform exitPoint = null;
     Coroutine playAnimationCoroutine = null;
     private void OnTriggerEnter(Collider other)
     {
@@ -35,9 +39,10 @@ public class GrindTrigger : MonoBehaviour
         //splineAnimate.Restart(false);
         startGrindRotation = splineAnimate.transform.rotation;
         BezierKnot point;
-        float offset = FindClosestPointOnSpline(splineAnimate.transform.position,splineAnimate.Container.Spline,out point);
+        float offset = FindClosestPointOnSpline(splineAnimate.transform.position,splineAnimate.Container,splineAnimate.Container.Spline,out point);
         playerMovement.PauseForGrind(true);
         playerMovement.isGrinding = true;
+        splineAnimate.MaxSpeed = grindSpeed;
         splineAnimate.StartOffset = offset;
         Vector3 realWorldKnotPos =
             splineAnimate.Container.transform.TransformPoint(splineAnimate.Container.Spline.EvaluatePosition(offset));
@@ -58,14 +63,14 @@ public class GrindTrigger : MonoBehaviour
         Vector3 lastSplinePos = splineAnimate.Container.transform.TransformPoint(splineAnimate.Container.Spline.EvaluatePosition(splineAnimate.NormalizedTime + offset));
 
         splineAnimate.Restart(false);
-        playerMovement.ExitGrind(lastSplinePos,realWorldCenterPos);
+        playerMovement.ExitGrind(lastSplinePos, exitPoint ?exitPoint.position:realWorldCenterPos);
         playerMovement.PauseForGrind(false);
         yield return new WaitForSeconds(grindCooldown);
         playerMovement.isGrinding = false;
         playAnimationCoroutine = null;
     }
     
-    private float FindClosestPointOnSpline(Vector3 worldPosition,Spline spline,out BezierKnot knotPoint)
+    private float FindClosestPointOnSpline(Vector3 worldPosition,SplineContainer container,Spline spline,out BezierKnot knotPoint)
     {
         float closestT = 0f;
         float minDistance = float.MaxValue;
@@ -77,12 +82,12 @@ public class GrindTrigger : MonoBehaviour
         {
             float t = i / (float)spline.Knots.Count(); // Normalized parameter
             knotPoint = knot;
-            Vector3 point = spline.EvaluatePosition(t); // Get spline position at t
+            Vector3 point = container.transform.TransformPoint(spline.EvaluatePosition(t)); // Get spline position at t
 
-            float distance = Vector3.Distance(worldPosition, point);
-            if (distance < minDistance)
+            float _distance = Vector3.Distance(worldPosition, point);
+            if (_distance < minDistance)
             {
-                minDistance = distance;
+                minDistance = _distance;
                 closestT = t;
             }
 
