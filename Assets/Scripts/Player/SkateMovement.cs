@@ -7,12 +7,14 @@ using UnityEngine.Splines;
 
 public class SkateMovement : MonoBehaviour
 {
-    
+    [SerializeField] private Transform startPoint;
     [SerializeField] private float baseSpeed = 200.0f;
     
     [SerializeField] private float rotationSpeed = 100.0f;
     [SerializeField]
     private Transform frontPoint;
+    [SerializeField]
+    private Transform rearPoint;
     [SerializeField]
     private float checkGroundDistance = 0.2f;
 
@@ -22,6 +24,7 @@ public class SkateMovement : MonoBehaviour
     [SerializeField] private float madeupGravity = 4.0f;
     [SerializeField] private float jumpForce = 10f;
     [SerializeField] private float jumpDurationNoseconds = 1.0f;
+    [SerializeField] private GameObject worldCenter;
     private InputActionMap skateActionMap;
     private InputAction skateJumpAction;
     private InputAction skateMoveAction;
@@ -46,8 +49,21 @@ public class SkateMovement : MonoBehaviour
         skateJumpAction = skateActionMap.FindAction("Jump");
         skateMoveAction = skateActionMap.FindAction("Move");
         skateJumpAction.performed += SkateJumpActionOnperformed;
+        transform.position = startPoint.position;
+        transform.rotation = startPoint.rotation;
     }
 
+    public void Respawn()
+    {
+        paused = true;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+        transform.position = startPoint.position;
+        transform.rotation = startPoint.rotation;
+        rb.isKinematic = false;
+        paused = false;
+    }
     private void SkateJumpActionOnperformed(InputAction.CallbackContext obj)
     {
         Jump();
@@ -70,7 +86,7 @@ public class SkateMovement : MonoBehaviour
         rb.freezeRotation = true;
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         rb.AddForce(frontPoint.up * jumpForce, ForceMode.Impulse);
-        rb.MoveRotation(new Quaternion(0,transform.rotation.y,0,transform.rotation.w));
+        rb.MoveRotation(new Quaternion(0,transform.rotation.y,0,transform.rotation.w).normalized);
         rb.useGravity = true;
         yield return new WaitForSeconds(jumpDurationNoseconds);
         rb.freezeRotation = false;
@@ -91,12 +107,11 @@ public class SkateMovement : MonoBehaviour
 
     public void PauseForGrind(bool pause)
     {
-        isGrinding = pause;
         rb.isKinematic = pause;
         paused = pause;
     }
 
-    public void ExitGrind(Vector3 exitPoint, Vector3 exitLookAtPoint)
+    public void ExitGrind(Vector3 exitPoint, Vector3 exitLookAtPoint,bool reverse = false)
     {
         paused = true;
         if (!rb.isKinematic)
@@ -105,6 +120,11 @@ public class SkateMovement : MonoBehaviour
         }
         transform.position = exitPoint;
         Vector3 direction = new Vector3(exitLookAtPoint.x,0,exitLookAtPoint.z) - transform.position;
+        if (reverse)
+        {
+            direction =  transform.position - new Vector3(exitLookAtPoint.x,0,exitLookAtPoint.z);
+        }
+        Debug.DrawRay(transform.position, direction, Color.red,20f);
         Quaternion targetRotation = Quaternion.LookRotation(direction, transform.up);
         transform.rotation =new Quaternion(targetRotation.x,targetRotation.y,0,targetRotation.w);
         rb.isKinematic = false;
@@ -131,7 +151,7 @@ public class SkateMovement : MonoBehaviour
             // Apply the rotation to the Rigidbody
             rb.MoveRotation(rb.rotation * deltaRotation);
             RaycastHit hit;
-            if (rb.linearVelocity.magnitude < linearVelocityThreshold && !exploding && Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f))
+            if (rb.linearVelocity.magnitude < linearVelocityThreshold && !exploding &&  (colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
             {
                 StartCoroutine(WaitAndExplode_CO());
 
@@ -142,11 +162,15 @@ public class SkateMovement : MonoBehaviour
             DetectDownside();
         }
     }
+    bool colliding = false;
+    
     private void CheckGround()
     {
         RaycastHit hit;
-        if (Physics.Raycast(frontPoint.position, -transform.up, out hit, checkGroundDistance))
+        RaycastHit hitRear;
+        if (Physics.Raycast(frontPoint.position, -transform.up, out hit, checkGroundDistance) || Physics.Raycast(rearPoint.position, -transform.up, out hitRear, checkGroundDistance))
         {
+            isDownside = false;
                 rb.useGravity = false;
                 isGrounded = true;
         }
@@ -163,7 +187,7 @@ public class SkateMovement : MonoBehaviour
         exploding = true;
         yield return new WaitForSeconds(waitForExplosionSeconds);
         RaycastHit hit;
-        if (rb.linearVelocity.magnitude < linearVelocityThreshold && Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f))
+        if (rb.linearVelocity.magnitude < linearVelocityThreshold && ( colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
         {
             paused = true;
             StartCoroutine(WaitAndExplode_CO());
@@ -182,7 +206,7 @@ public class SkateMovement : MonoBehaviour
         if (rb.linearVelocity.magnitude < linearVelocityThreshold && Physics.Raycast(frontPoint.position, transform.up, out hit, 2f))
         {
             paused = true;
-            rb.AddForce(hit.normal * explosionForce, ForceMode.Impulse);
+            rb.AddForce(hit.normal * jumpForce, ForceMode.Impulse);
             Quaternion deltaRotation = Quaternion.Euler(0f, 0f, 180f);
             rb.MoveRotation(rb.rotation * deltaRotation);
             paused = false;
@@ -209,13 +233,60 @@ public class SkateMovement : MonoBehaviour
             
             
     }
+    public bool isDownside = false;
     void DetectDownside()
     {
         RaycastHit hit;
         if(exploding) return;
         if (rb.linearVelocity.magnitude < linearVelocityThreshold && Physics.Raycast(frontPoint.position, transform.up, out hit, 2f))
         {
+            isDownside = true;
             StartCoroutine(WaitAndExplodeDownside_CO());
+        }
+    }
+
+    private bool walling = false;
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag != "Floor")
+        {
+            colliding = true;
+        }
+        if (other.gameObject.tag == "Ceiling")
+        {
+            ExitGrind(frontPoint.position - frontPoint.forward * 4,worldCenter.transform.position);
+        }
+
+        if (other.gameObject.tag == "Walls")
+        {
+            walling = true;
+            if (wallsCO != null)
+            {
+                StopCoroutine(wallsCO);
+            }
+            wallsCO = StartCoroutine(Walls_CO());
+        }
+    }
+
+    private Coroutine wallsCO = null;
+    private IEnumerator Walls_CO()
+    {
+        yield return new WaitForSeconds(2f);
+        ExitGrind(frontPoint.position - frontPoint.up * 4,worldCenter.transform.position);
+        walling = false;
+        wallsCO = null;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.tag != "Floor")
+        {
+            colliding = false;
+        }
+        if (other.gameObject.tag == "Walls")
+        {
+            walling = false;
+
         }
     }
 

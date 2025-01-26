@@ -21,6 +21,8 @@ public class TrickManager : MonoBehaviour
     public SphereCollider sphereCollider;
     
     private SkateMovement skateMovement;
+    
+    public ScreenPopUps screenPopUps;
 
     private void Awake()
     {
@@ -63,7 +65,25 @@ public class TrickManager : MonoBehaviour
         {
             sphereCollider.enabled = false;
         }
+
+        if (comboTimer <= 0)
+        {
+            screenPopUps.currentState = 0;
+        }
         
+        if (comboCount == 3 && screenPopUps.currentState == 0)
+        {
+            screenPopUps.ComboThreshold();
+        }
+
+        if (comboCount == 6 && screenPopUps.currentState == 1)
+        {
+            screenPopUps.ComboThreshold();
+        }
+        if (comboCount == 10 && screenPopUps.currentState == 2)
+        {
+            screenPopUps.ComboThreshold();
+        }
         
         Vector2 trickVector = skateTrickAction.ReadValue<Vector2>();
         
@@ -76,7 +96,7 @@ public class TrickManager : MonoBehaviour
                 isTricking = true;
                 comboTimer = comboTimerMax;
                 comboCount++;
-                AddScorePoints(5, comboCount);
+                AddScorePoints(2, comboCount);
                 Debug.Log(isTricking);
                 trickCooldown = 0.0f;
         }
@@ -87,7 +107,7 @@ public class TrickManager : MonoBehaviour
                 isTricking = true;
                 comboTimer = comboTimerMax;
                 comboCount++;
-                AddScorePoints(7, comboCount);
+                AddScorePoints(4, comboCount);
                 Debug.Log(isTricking);
                 trickCooldown = 0.0f;
         }
@@ -99,7 +119,7 @@ public class TrickManager : MonoBehaviour
             isTricking = true;
             comboTimer = comboTimerMax;
             comboCount++;
-            AddScorePoints(5, comboCount);
+            AddScorePoints(2, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -110,7 +130,7 @@ public class TrickManager : MonoBehaviour
             isTricking = true;
             comboTimer = comboTimerMax;
             comboCount++;
-            AddScorePoints(7, comboCount);
+            AddScorePoints(4, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -122,7 +142,7 @@ public class TrickManager : MonoBehaviour
             isTricking = true;
             comboTimer = comboTimerMax;
             comboCount++;
-            AddScorePoints(5, comboCount);
+            AddScorePoints(2, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -133,7 +153,7 @@ public class TrickManager : MonoBehaviour
             isTricking = true;
             comboTimer = comboTimerMax;
             comboCount++;
-            AddScorePoints(7, comboCount);
+            AddScorePoints(4, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -145,7 +165,7 @@ public class TrickManager : MonoBehaviour
             isTricking = true;
             comboTimer = comboTimerMax;
             comboCount++;
-            AddScorePoints(5, comboCount);
+            AddScorePoints(2, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
@@ -155,7 +175,7 @@ public class TrickManager : MonoBehaviour
             isTricking = true;
             comboTimer = comboTimerMax;
             comboCount++;
-            AddScorePoints(7, comboCount);
+            AddScorePoints(4, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
         }
