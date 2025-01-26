@@ -29,6 +29,7 @@ public class SkateMovement : MonoBehaviour
     private InputActionMap skateActionMap;
     private InputAction skateJumpAction;
     private InputAction skateMoveAction;
+    private InputAction exitGameAction;
 
     private Rigidbody rb;
     public bool isGrounded = false;
@@ -49,9 +50,22 @@ public class SkateMovement : MonoBehaviour
         skateActionMap = InputSystem.actions.FindActionMap("SkateSoap");
         skateJumpAction = skateActionMap.FindAction("Jump");
         skateMoveAction = skateActionMap.FindAction("Move");
+        exitGameAction = skateActionMap.FindAction("Exit");
         skateJumpAction.performed += SkateJumpActionOnperformed;
+        exitGameAction.performed += ExitGameActionOnperformed;
         transform.position = startPoint.position;
         transform.rotation = startPoint.rotation;
+    }
+
+    private void OnDestroy()
+    {
+        skateJumpAction.performed -= SkateJumpActionOnperformed;
+        exitGameAction.performed -= ExitGameActionOnperformed;
+    }
+
+    private void ExitGameActionOnperformed(InputAction.CallbackContext obj)
+    {
+        MenuManager.Instance.ReturnToMainMenu();
     }
 
     public void Respawn()
@@ -143,16 +157,15 @@ public class SkateMovement : MonoBehaviour
         {
             AudioCuacker.Instance.PauseTrail(false);
             AlignToSurface();
-            rb.AddForce(transform.forward * (baseSpeed * Time.deltaTime), ForceMode.Impulse);
+            rb.AddForce(transform.forward * (baseSpeed * Time.fixedDeltaTime));
             Vector2 rotationVector = skateMoveAction.ReadValue<Vector2>();
             // Calculate the rotation angle
-            float rotationAngle = rotationVector.x * rotationSpeed * Time.deltaTime;
+            float rotationAngle = rotationVector.x * rotationSpeed * Time.fixedDeltaTime;
 
             // Create the new rotation
             Quaternion deltaRotation = Quaternion.Euler(0f, rotationAngle, 0f);
 
             // Apply the rotation to the Rigidbody
-            rb.ResetInertiaTensor();
             rb.MoveRotation(rb.rotation * deltaRotation);
             RaycastHit hit;
             if (rb.linearVelocity.magnitude < linearVelocityThreshold && !exploding &&  (colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
@@ -160,7 +173,7 @@ public class SkateMovement : MonoBehaviour
                 StartCoroutine(WaitAndExplode_CO());
 
             }
-            LimitVelocity();
+            // LimitVelocity();
         }
         else
         {
@@ -245,7 +258,7 @@ public class SkateMovement : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(frontPoint.position, -transform.up, out hit, 2f))
         {
-            rb.AddForce(-hit.normal * (madeupGravity * Time.deltaTime));
+            rb.AddForce(-hit.normal * (madeupGravity * Time.fixedDeltaTime));
             //Quaternion surfaceRotation = Quaternion.FromToRotation(transform.up, hit.normal);
             //transform.rotation = surfaceRotation * transform.rotation;
         }
