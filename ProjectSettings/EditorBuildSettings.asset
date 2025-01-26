@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/UI_TitleScreen.unity
     guid: bb1f11bc4952e374794ccb6ad024240f
   - enabled: 1
+    path: Assets/Scenes/PorFuera.unity
+    guid: ddf805304a8c0814da78436beece4335
+  - enabled: 0
     path: Assets/Scenes/DEV-Bathroom.unity
     guid: 87f36d36e9fb48642840a031ad34a997
   - enabled: 1

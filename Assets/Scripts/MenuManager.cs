@@ -29,7 +29,7 @@ public class MenuManager : MonoBehaviour
     {
         if (arg0.buildIndex == 2)
         {
-            Foentes.Instance.AddScore(GameManager.Instance.score);
+            Foentes.Instance.AddScore(ScoreManager.Instance.score);
         }
     }
 
