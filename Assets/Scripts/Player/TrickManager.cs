@@ -99,6 +99,7 @@ public class TrickManager : MonoBehaviour
                 AddScorePoints(2, comboCount);
                 Debug.Log(isTricking);
                 trickCooldown = 0.0f;
+                AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         
         if (trickVector.y > 0 && !isTricking && skateMovement.isGrinding)
@@ -110,6 +111,7 @@ public class TrickManager : MonoBehaviour
                 AddScorePoints(4, comboCount);
                 Debug.Log(isTricking);
                 trickCooldown = 0.0f;
+                AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         
         // ====================== DOWN TRICKS ======================
@@ -122,6 +124,7 @@ public class TrickManager : MonoBehaviour
             AddScorePoints(2, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
+            AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         
         if (trickVector.y < 0 && !isTricking && skateMovement.isGrinding)
@@ -133,6 +136,7 @@ public class TrickManager : MonoBehaviour
             AddScorePoints(4, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
+            AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         
         // ====================== RIGHT TRICKS ======================
@@ -145,6 +149,7 @@ public class TrickManager : MonoBehaviour
             AddScorePoints(2, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
+            AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         
         if (trickVector.x > 0 && !isTricking && skateMovement.isGrinding)
@@ -156,6 +161,7 @@ public class TrickManager : MonoBehaviour
             AddScorePoints(4, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
+            AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         
         // ====================== LEFT TRICKS ======================
@@ -168,6 +174,7 @@ public class TrickManager : MonoBehaviour
             AddScorePoints(2, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
+            AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
         if (trickVector.x < 0 && !isTricking && skateMovement.isGrinding)
         {
@@ -178,6 +185,7 @@ public class TrickManager : MonoBehaviour
             AddScorePoints(4, comboCount);
             Debug.Log(isTricking);
             trickCooldown = 0.0f;
+            AudioCuacker.Instance.PlayComboSound(comboCount >= 10 );
         }
 
         // Check if the animation is playing and if it has ended

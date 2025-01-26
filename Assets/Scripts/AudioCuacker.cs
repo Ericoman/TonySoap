@@ -1,12 +1,17 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class AudioCuacker : MonoBehaviour
 {
-    [SerializeField] private AudioClip[] trucoSounds;
+    [SerializeField] private AudioClip[] saltoSounds;
     [SerializeField] private AudioClip[] comboSounds;
-    [SerializeField]AudioSource audioSource;
+    [SerializeField] private AudioClip specialWomboComboSound;
+    [SerializeField] private AudioClip trailSound;
+    [SerializeField] private AudioClip pumSound;
+    [SerializeField]AudioSource playerAudioSource;
+    [SerializeField]AudioSource comboAudioSource;
     private static AudioCuacker instance = null;
     public static AudioCuacker Instance => instance;
 
@@ -22,14 +27,47 @@ public class AudioCuacker : MonoBehaviour
         }
     }
 
-    public void PlayTrucoSound()
+    private void Start()
     {
-        audioSource.PlayOneShot(trucoSounds[Random.Range(0, trucoSounds.Length)]);
+        playerAudioSource.clip = trailSound;
+        playerAudioSource.loop = true;
+        playerAudioSource.Play();
     }
 
-    public void PlayComboSound()
+    public void PauseTrail(bool pause)
     {
-        audioSource.PlayOneShot(comboSounds[Random.Range(0, comboSounds.Length)]);
+        if (pause)
+        {
+            playerAudioSource.Stop();
+        }
+        else
+        {
+            if (!playerAudioSource.isPlaying)
+            {
+                playerAudioSource.Play();
+            }
+        }
+    }
+    public void PlaySaltoSound()
+    {
+        playerAudioSource.PlayOneShot(saltoSounds[Random.Range(0, saltoSounds.Length)]);
+    }
+
+    public void PlayComboSound(bool special = false)
+    {
+        if (!special)
+        {
+            comboAudioSource.PlayOneShot(comboSounds[Random.Range(0, comboSounds.Length)]);
+        }
+        else
+        {
+            comboAudioSource.PlayOneShot(specialWomboComboSound);
+        }
+    }
+
+    public void PlayPumSound()
+    {
+        playerAudioSource.PlayOneShot(pumSound);
     }
 
 }
