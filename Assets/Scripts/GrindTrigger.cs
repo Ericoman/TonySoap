@@ -12,12 +12,17 @@ public class GrindTrigger : MonoBehaviour
     float grindCooldown = 2f;
     [SerializeField]
     float lerpSpeed = 5f;
+    [SerializeField]
+    SplineContainer relatedSpline;
     Coroutine playAnimationCoroutine = null;
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player" && playAnimationCoroutine == null)
         {
-            playAnimationCoroutine = StartCoroutine(PlayAnimation_CO(other.GetComponent<SkateMovement>(),other.GetComponent<SplineAnimate>()));
+            if (!other.GetComponent<SkateMovement>().isGrinding)
+            {
+                playAnimationCoroutine = StartCoroutine(PlayAnimation_CO(other.GetComponent<SkateMovement>(),other.GetComponent<SplineAnimate>()));
+            }
         }
     }
 
@@ -26,10 +31,13 @@ public class GrindTrigger : MonoBehaviour
     private Quaternion startGrindRotation;
     private IEnumerator PlayAnimation_CO(SkateMovement playerMovement, SplineAnimate splineAnimate)
     {
+        splineAnimate.Container = relatedSpline;
+        //splineAnimate.Restart(false);
         startGrindRotation = splineAnimate.transform.rotation;
         BezierKnot point;
         float offset = FindClosestPointOnSpline(splineAnimate.transform.position,splineAnimate.Container.Spline,out point);
         playerMovement.PauseForGrind(true);
+        playerMovement.isGrinding = true;
         splineAnimate.StartOffset = offset;
         Vector3 realWorldKnotPos =
             splineAnimate.Container.transform.TransformPoint(splineAnimate.Container.Spline.EvaluatePosition(offset));
@@ -44,16 +52,16 @@ public class GrindTrigger : MonoBehaviour
             yield return null;
         }
         splineAnimate.Play();
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(grindTime);
         splineAnimate.Pause();
         // yield return new WaitForSeconds(2f);
         Vector3 lastSplinePos = splineAnimate.Container.transform.TransformPoint(splineAnimate.Container.Spline.EvaluatePosition(splineAnimate.NormalizedTime + offset));
-        GameObject go = Instantiate(new GameObject(),  lastSplinePos, Quaternion.identity);
 
         splineAnimate.Restart(false);
         playerMovement.ExitGrind(lastSplinePos,realWorldCenterPos);
         playerMovement.PauseForGrind(false);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(grindCooldown);
+        playerMovement.isGrinding = false;
         playAnimationCoroutine = null;
     }
     
