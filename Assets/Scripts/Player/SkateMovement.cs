@@ -88,6 +88,7 @@ public class SkateMovement : MonoBehaviour
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         rb.AddForce(frontPoint.up * jumpForce, ForceMode.Impulse);
         rb.MoveRotation(new Quaternion(0,transform.rotation.y,0,transform.rotation.w).normalized);
+        AudioCuacker.Instance.PlaySaltoSound();
         rb.useGravity = true;
         yield return new WaitForSeconds(jumpDurationNoseconds);
         rb.freezeRotation = false;
@@ -140,6 +141,7 @@ public class SkateMovement : MonoBehaviour
         CheckGround();
         if (isGrounded)
         {
+            AudioCuacker.Instance.PauseTrail(false);
             AlignToSurface();
             rb.AddForce(transform.forward * (baseSpeed * Time.deltaTime), ForceMode.Impulse);
             Vector2 rotationVector = skateMoveAction.ReadValue<Vector2>();
@@ -162,6 +164,7 @@ public class SkateMovement : MonoBehaviour
         }
         else
         {
+            AudioCuacker.Instance.PauseTrail(true);
             DetectDownside();
         }
     }
@@ -204,6 +207,7 @@ public class SkateMovement : MonoBehaviour
         {
             paused = true;
             StartCoroutine(WaitAndExplode_CO());
+            AudioCuacker.Instance.PlayPumSound();
             rb.AddForce(explosionForce*frontPoint.up, ForceMode.Impulse);
             Quaternion deltaRotation = Quaternion.Euler(0f, 180f, 0f);
             rb.MoveRotation(rb.rotation * deltaRotation);
@@ -220,6 +224,7 @@ public class SkateMovement : MonoBehaviour
         if (rb.linearVelocity.magnitude < linearVelocityThreshold && (Physics.Raycast(frontPoint.position, transform.up, out hit, 2f) || Physics.Raycast(rearPoint.position, transform.up, out hitRear, 2f)))
         {
             paused = true;
+            AudioCuacker.Instance.PlayPumSound();
             rb.AddForce(hit.normal * jumpForce, ForceMode.Impulse);
             Quaternion deltaRotation = Quaternion.Euler(0f, 0f, 180f);
             rb.MoveRotation(rb.rotation * deltaRotation);
