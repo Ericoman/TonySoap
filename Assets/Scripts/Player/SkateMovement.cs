@@ -157,23 +157,37 @@ public class SkateMovement : MonoBehaviour
         {
             AudioCuacker.Instance.PauseTrail(false);
             AlignToSurface();
-            rb.AddForce(transform.forward * (baseSpeed * Time.fixedDeltaTime));
+            //rb.AddForce(transform.forward * (baseSpeed * Time.fixedDeltaTime));
+            rb.linearVelocity = transform.forward * maxVelocity;
             Vector2 rotationVector = skateMoveAction.ReadValue<Vector2>();
+            // // Calculate the rotation angle
+            // float rotationAngle = rotationVector.x * rotationSpeed * Time.fixedDeltaTime;
+            //
+            // // Create the new rotation
+            // Quaternion deltaRotation = Quaternion.Euler(0f, rotationAngle, 0f);
+            //
+            // // Apply the rotation to the Rigidbody
+            // rb.MoveRotation(rb.rotation * deltaRotation);
+            
             // Calculate the rotation angle
             float rotationAngle = rotationVector.x * rotationSpeed * Time.fixedDeltaTime;
 
-            // Create the new rotation
-            Quaternion deltaRotation = Quaternion.Euler(0f, rotationAngle, 0f);
+// Convert the rotation angle to radians per second
+            float angularVelocityY = rotationAngle * Mathf.Deg2Rad / Time.fixedDeltaTime;
 
-            // Apply the rotation to the Rigidbody
-            rb.MoveRotation(rb.rotation * deltaRotation);
+// Set the angular velocity (only on the Y-axis for this example)
+            Vector3 newAngularVelocity = angularVelocityY * transform.up;
+
+// Apply the angular velocity to the Rigidbody
+            rb.angularVelocity = newAngularVelocity;
+            
             RaycastHit hit;
             if (rb.linearVelocity.magnitude < linearVelocityThreshold && !exploding &&  (colliding || Physics.Raycast(frontPoint.position, transform.forward, out hit, 2f)))
             {
                 StartCoroutine(WaitAndExplode_CO());
 
             }
-            // LimitVelocity();
+            //LimitVelocity();
         }
         else
         {
@@ -301,6 +315,22 @@ public class SkateMovement : MonoBehaviour
         }
     }
 
+    private float stuckCounter;
+    [SerializeField]
+    private float stuckTime = 0.5f;
+    private void OnCollisionStay(Collision other)
+    {
+        
+        if (other.gameObject.tag != "Floor" && other.gameObject.tag != "Ceiling" && other.gameObject.tag != "Walls")
+        {
+            stuckCounter += Time.deltaTime;
+            if (stuckCounter >= stuckTime)
+            {
+                StartCoroutine(WaitAndExplode_CO());
+            }
+        }
+    }
+
     private Coroutine wallsCO = null;
     private IEnumerator Walls_CO()
     {
@@ -320,6 +350,10 @@ public class SkateMovement : MonoBehaviour
         {
             walling = false;
 
+        }
+        if (other.gameObject.tag != "Floor" && other.gameObject.tag != "Ceiling" && other.gameObject.tag != "Walls")
+        {
+            stuckCounter = 0;
         }
     }
 
